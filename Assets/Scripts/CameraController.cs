@@ -14,6 +14,8 @@ public class CameraController : MonoBehaviour
     private float m_minDistance = 1.0f;
     [SerializeField]
     private float m_maxDistance = 1.0f;
+    [SerializeField]
+    private float m_lerpSpeed = 0.05f;
 
     void Start()
     {
@@ -100,14 +102,15 @@ public class CameraController : MonoBehaviour
             /**
              * if camera is too near or too far from the character, or between min and max value, then scroll works
              */
-            Vector3 targetPosition = Vector3.forward * Input.mouseScrollDelta.y + transform.position;
+            Vector3 targetPosition = m_objectToLookAt.position - (transform.forward * 10.0f);
             float distance = Utils.Distance(targetPosition, m_objectToLookAt.position);
             if(distance <= m_maxDistance && distance >= m_minDistance ||
                 distance > m_maxDistance && Input.mouseScrollDelta.y > 0 ||
                 distance < m_minDistance && Input.mouseScrollDelta.y < 0)
             {
                 //transform.position = Vector3.Slerp(transform.position, targetPosition, Input.mouseScrollDelta.y * Time.deltaTime);
-                transform.Translate(Vector3.forward * Input.mouseScrollDelta.y, Space.Self);
+                //transform.Translate(Vector3.forward * Input.mouseScrollDelta.y, Space.Self);
+                transform.position = Vector3.Lerp(transform.position, targetPosition, m_lerpSpeed);
             }
         }
     }

@@ -23,6 +23,8 @@ public class CharacterControllerStateMachine : MonoBehaviour
 
     public const string KEY_STATUS_FLOAT_MOVEY = "MoveY";
 
+    public const string KEY_STATUS_FALL_HEIGHT = "FallHeight";
+
     private const float TO_RADIAN = Mathf.PI / 180;
 
     public Camera Camera { get; private set; }
