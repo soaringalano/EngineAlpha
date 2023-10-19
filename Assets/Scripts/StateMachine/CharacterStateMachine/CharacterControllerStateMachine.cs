@@ -4,7 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering.Universal.Internal;
 
-public class CharacterControllerStateMachine : MonoBehaviour
+public class CharacterControllerStateMachine : AbstractStateMachine<CharacterState>
 {
 
     public const string KEY_STATUS_BOOL_TOUCHGROUND = "TouchGround";
@@ -68,19 +68,20 @@ public class CharacterControllerStateMachine : MonoBehaviour
     [field: SerializeField]
     private float m_enemyDamage { get; set; }
 
-    private CharacterState m_currentState;
-
-    private List<CharacterState> m_possibleStates;
-
     private GameObject[] m_enemies;
 
-    private void Awake()
+    protected override void Awake()
+    {
+        base.Awake();
+        m_enemies = FindEnemies();
+    }
+
+    protected override void CreatePossibleStates()
     {
         m_possibleStates = new List<CharacterState>();
         m_possibleStates.Add(new FreeState());
         m_possibleStates.Add(new JumpState());
         m_possibleStates.Add(new AttackState());
-        m_enemies = FindEnemies();
     }
 
     // Start is called before the first frame update
