@@ -2,17 +2,44 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GamePlayState : MonoBehaviour
+public class GamePlayState : IState
 {
-    // Start is called before the first frame update
-    void Start()
+    protected Camera m_camera;
+
+    public GamePlayState(Camera camera)
     {
-        
+        m_camera = camera;
     }
 
-    // Update is called once per frame
-    void Update()
+    public bool CanEnter(IState currentState)
     {
-        
+        return Input.GetKeyDown(KeyCode.G);
+    }
+
+    public bool CanExit()
+    {
+        return Input.GetKeyDown(KeyCode.G);
+    }
+
+    public void OnEnter()
+    {
+        m_camera.enabled = true;
+    }
+
+    public void OnExit()
+    {
+        m_camera.enabled = false;
+    }
+
+    public void OnFixedUpdate()
+    {
+    }
+
+    public void OnStart()
+    {
+    }
+
+    public void OnUpdate()
+    {
     }
 }

@@ -6,6 +6,10 @@ public abstract class CharacterState : IState
     {
         m_stateMachine = stateMachine;
     }
+    
+    public virtual void OnStart()
+    {
+    }
 
     public virtual void OnEnter()
     {
@@ -23,7 +27,7 @@ public abstract class CharacterState : IState
     {
     }
 
-    public virtual bool CanEnter()
+    public virtual bool CanEnter(IState currentState)
     {
         throw new System.NotImplementedException();
     }
@@ -32,4 +36,5 @@ public abstract class CharacterState : IState
     {
         throw new System.NotImplementedException();
     }
+
 }

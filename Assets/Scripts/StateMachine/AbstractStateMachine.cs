@@ -24,12 +24,14 @@ public class AbstractStateMachine<T> : MonoBehaviour where T : IState
 
     protected virtual void Update()
     {
+        //Debug.Log("Current state:" +  m_currentState.GetType());
         m_currentState.OnUpdate();
         TryStateTransition();
     }
 
     protected virtual void FixedUpdate()
     {
+        //Debug.Log("Current state:" + m_currentState.GetType());
         m_currentState.OnFixedUpdate();
     }
 
@@ -54,7 +56,7 @@ public class AbstractStateMachine<T> : MonoBehaviour where T : IState
                 continue;
             }
 
-            if (state.CanEnter())
+            if (state.CanEnter(m_currentState))
             {
                 //Quitter le state actuel
                 m_currentState.OnExit();

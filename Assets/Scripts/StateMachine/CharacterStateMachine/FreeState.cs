@@ -4,19 +4,22 @@ using UnityEngine;
 
 public class FreeState : CharacterState
 {
-    public override void OnEnter()
+
+    private AudioSource m_clip;
+
+    public FreeState(AudioSource clip)
     {
-        //Debug.Log("Enter state: FreeState\n");
+        m_clip = clip;
     }
 
     public override void OnUpdate()
     {
-
+        base.OnUpdate();
     }
 
     public override void OnFixedUpdate()
     {
-        var vectorOnFloorF = Vector3.ProjectOnPlane(m_stateMachine.Camera.transform.forward, Vector3.up);
+        /*var vectorOnFloorF = Vector3.ProjectOnPlane(m_stateMachine.Camera.transform.forward, Vector3.up);
         vectorOnFloorF.Normalize();
         
         var vectorOnFloorB = Vector3.ProjectOnPlane(Utils.ROTATE_X_Z_180D(m_stateMachine.Camera.transform.forward), Vector3.up);
@@ -55,26 +58,50 @@ public class FreeState : CharacterState
         float backwardComponent = Vector3.Dot(m_stateMachine.RB.velocity, vectorOnFloorB);
         float leftComponent = Vector3.Dot(m_stateMachine.RB.velocity, vectorOnFloorL);
         float rightComponent = Vector3.Dot(m_stateMachine.RB.velocity, vectorOnFloorR);
-        m_stateMachine.UpdateAnimatorMovementValues(new Vector2(leftComponent-rightComponent, forwardComponent-backwardComponent));
+        m_stateMachine.UpdateAnimatorMovementValues(new Vector2(leftComponent-rightComponent, forwardComponent-backwardComponent));*/
 
-        //TODO 31 AOÛT:
-        //Appliquer les déplacements relatifs à la caméra dans les 3 autres directions
-        //Avoir des vitesses de déplacements maximales différentes vers les côtés et vers l'arrière
-        //Lorsqu'aucun input est mis, décélérer le personnage rapidement
+        FixedUpdateRotateWithCamera();
 
-        //Debug.Log(m_stateMachine.RB.velocity.magnitude);
-
-
+        if (m_stateMachine.CurrentDirectionalInputs == Vector2.zero)
+        {
+            m_stateMachine.FixedUpdateQuickDeceleration();
+            return;
+        }
+        Vector2 velocity = m_stateMachine.CurrentDirectionalInputs;
+        float speed = velocity.magnitude;
+        ApplyMovementsOnFloorFU(velocity);
+        if (m_clip != null)
+        {
+            if(speed > 0)
+            {
+                m_clip.Play();
+            }
+            else
+            {
+                m_clip.Stop();
+            }
+        }
     }
 
-    public override void OnExit()
+    private void ApplyMovementsOnFloorFU(Vector2 inputVector2)
     {
-        //Debug.Log("Exit state: FreeState\n");
+        var vectorOnFloor = Vector3.ProjectOnPlane(m_stateMachine.Camera.transform.forward * inputVector2.y, Vector3.up);
+        vectorOnFloor += Vector3.ProjectOnPlane(m_stateMachine.Camera.transform.right * inputVector2.x, Vector3.up);
+        vectorOnFloor.Normalize();
+
+        m_stateMachine.RB.AddForce(vectorOnFloor * m_stateMachine.AccelerationValue, ForceMode.Acceleration);
+
+        var currentMaxSpeed = m_stateMachine.MaxVelocity;
+
+        if (m_stateMachine.RB.velocity.magnitude > currentMaxSpeed)
+        {
+            m_stateMachine.RB.velocity = m_stateMachine.RB.velocity.normalized;
+            m_stateMachine.RB.velocity *= currentMaxSpeed;
+        }
     }
 
-    public override bool CanEnter()
+    public override bool CanEnter(IState currentState)
     {
-        //Je ne peux entrer dans le FreeState que si je touche le sol
         return m_stateMachine.IsInContactWithFloor();
     }
 
@@ -82,4 +109,11 @@ public class FreeState : CharacterState
     {
         return true;
     }
+
+    private void FixedUpdateRotateWithCamera()
+    {
+        var forwardCamOnFloor = Vector3.ProjectOnPlane(m_stateMachine.Camera.transform.forward, Vector3.up);
+        m_stateMachine.RB.transform.LookAt(forwardCamOnFloor + m_stateMachine.RB.transform.position);
+    }
+
 }

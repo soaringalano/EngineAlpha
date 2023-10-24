@@ -1,31 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Rendering.Universal.Internal;
 
-public class CharacterControllerStateMachine : AbstractStateMachine<CharacterState>
+public class CharacterControllerStateMachine : AbstractStateMachine<CharacterState>, IDamageable
 {
+    public const string KEY_STATUS_BOOL_STUN = "Stun";
 
     public const string KEY_STATUS_BOOL_TOUCHGROUND = "TouchGround";
 
     public const string KEY_STATUS_TRIGGER_ATTACK = "CommAttack";
 
+    public const string KEY_STATUS_TRIGGER_FALLONGROUND = "FallOnGround";
+
+    public const string KEY_STATUS_TRIGGER_INAIR = "InAir";
+
     public const string KEY_STATUS_TRIGGER_ISHIT = "IsHit";
 
     public const string KEY_STATUS_TRIGGER_JUMP = "Jump";
 
-    public const string KEY_STATUS_TRIGGER_INAIR = "InAir";
-
     public const string KEY_STATUS_TRIGGER_VICTORY = "Victory";
+
+    public const string KEY_STATUS_FLOAT_FALL_HEIGHT = "FallHeight";
 
     public const string KEY_STATUS_FLOAT_MOVEX = "MoveX";
 
     public const string KEY_STATUS_FLOAT_MOVEY = "MoveY";
 
-    public const string KEY_STATUS_FALL_HEIGHT = "FallHeight";
+    public const float TO_RADIAN = Mathf.PI / 180;
 
-    private const float TO_RADIAN = Mathf.PI / 180;
+    public const float STUN_HEIGHT = 5.0f;
 
     public Camera Camera { get; private set; }
 
@@ -37,6 +43,13 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
 
     [field: SerializeField]
     public float AccelerationValue { get; private set; }
+
+    private Vector2 CurrentRelativeVelocity { get; set; }
+
+    public Vector2 CurrentDirectionalInputs { get; private set; }
+
+    [field: SerializeField]
+    public float DecelerationValue { get; private set; } = 0.3f;
 
     [field: SerializeField]
     public float MaxVelocity { get; private set; }
@@ -50,8 +63,10 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
     [field: SerializeField]
     public float MaxSideVelocity { get; private set; }
 
+    public float InAirAccelerationValue { get; private set; } = 0.2f;
+
     [field: SerializeField]
-    public float JumpIntensity { get; private set; } = 2000.0f;
+    public float JumpIntensity { get; private set; } = 1000.0f;
 
     [field: SerializeField]
     public float CommAttackDamage { get; set; } = 10.0f;
@@ -69,6 +84,16 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
     private float m_enemyDamage { get; set; }
 
     private GameObject[] m_enemies;
+    
+    public bool OnHitStimuliReceived { get; set; } = false;
+    
+    public bool OnStunStimuliReceived { get; set; } = false;
+
+    private Vector2 m_highestPosition = Vector2.zero;
+
+    private Vector2 m_lowestPosition = Vector2.positiveInfinity;
+
+    public List<AudioSource> m_audioSources;
 
     protected override void Awake()
     {
@@ -79,13 +104,16 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
     protected override void CreatePossibleStates()
     {
         m_possibleStates = new List<CharacterState>();
-        m_possibleStates.Add(new FreeState());
-        m_possibleStates.Add(new JumpState());
-        m_possibleStates.Add(new AttackState());
+        m_possibleStates.Add(new FreeState(m_audioSources[0]));
+        m_possibleStates.Add(new JumpState(m_audioSources[1]));
+        m_possibleStates.Add(new InAirState());
+        m_possibleStates.Add(new OnGroundState(m_audioSources[2]));
+        m_possibleStates.Add(new AttackState(m_audioSources[3]));
+        m_possibleStates.Add(new HitState(m_audioSources[4]));
     }
 
     // Start is called before the first frame update
-    void Start()
+    protected override void Start()
     {
         Camera = Camera.main;
         //m_rigitBody = GetComponent<Rigidbody>();
@@ -98,27 +126,68 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
         m_currentState.OnEnter();
     }
 
-    private void Update()
+    protected override void Update()
     {
-        m_currentState.OnUpdate();
-        UpdateAnimatorBoolValue(KEY_STATUS_BOOL_TOUCHGROUND, m_floorTrigger.IsOnFloor);
-        if(!m_floorTrigger.IsOnFloor && m_currentState is not JumpState)
+        /*if(!m_floorTrigger.IsOnFloor && m_currentState is not JumpState)
         {
             ActivateInAirTrigger();
         }
-        TryStateTransition();
-        UpdateEnemies();
+        m_currentState.OnUpdate();
+        TryStateTransition();*/
+        UpdateAnimatorKeyValues();
+        base.Update();
     }
 
-    public void UpdateAnimatorBoolValue(string key, bool value)
+    public void UpdateAnimatorKeyValues()
     {
-        Animator.SetBool(key, value);
+        UpdateAnimatorBoolValue(KEY_STATUS_BOOL_TOUCHGROUND, m_floorTrigger.IsOnFloor);
+        Animator.SetFloat("MoveX", CurrentRelativeVelocity.x / GetCurrentMaxSpeed());
+        Animator.SetFloat("MoveY", CurrentRelativeVelocity.y / GetCurrentMaxSpeed());
+        UpdateEnemies();
+
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    protected override void FixedUpdate()
     {
+        //Debug.Log("Current state:" + m_currentState.GetType());
+        SetDirectionalInputs();
         m_currentState.OnFixedUpdate();
+        Set2dRelativeVelocity();
+    }
+
+    // Only called by InAirState to ensure only when in air it's called
+    public void InAirFixedUpdateFallHeight()
+    {
+        if(m_highestPosition.y < transform.position.y)
+        {
+            m_highestPosition = transform.position;
+        }    
+        if(m_lowestPosition.y >  transform.position.y)
+        {
+            m_lowestPosition = transform.position;
+        }
+        float f = m_highestPosition.y - m_lowestPosition.y;
+        if (f > 0)
+        {
+            SetFloatFallHeight(f);
+        }
+        else
+        {
+            SetFloatFallHeight(0.0f);
+        }
+    }
+
+    public void InAirResetFallHeight()
+    {
+        m_highestPosition = Vector2.zero;
+        m_lowestPosition = Vector2.positiveInfinity;
+        SetFloatFallHeight(0);
+    }
+
+    public bool IsFallingFromHigh()
+    {
+        return Animator.GetFloat(KEY_STATUS_FLOAT_FALL_HEIGHT) > STUN_HEIGHT;
     }
 
     public void OnCollisionEnter(Collision collision)
@@ -137,31 +206,28 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
         }
     }
 
-    private void TryStateTransition()
+    public void Jump()
     {
-        if (!m_currentState.CanExit())
-        {
-            return;
-        }
+        RB.AddForce(Vector3.up * JumpIntensity, ForceMode.Acceleration);
+    }
 
-        //Je PEUX quitter le state actuel
-        foreach (var state in m_possibleStates)
-        {
-            if (m_currentState == state)
-            {
-                continue;
-            }
+    public void ReceiveDamage(EDamageType damageType)
+    {
 
-            if (state.CanEnter())
-            {
-                //Quitter le state actuel
-                m_currentState.OnExit();
-                m_currentState = state;
-                //Rentrer dans le state state
-                m_currentState.OnEnter();
-                return;
-            }
+        if (damageType == EDamageType.Normal)
+        {
+            OnHitStimuliReceived = true;
         }
+        if (damageType == EDamageType.Stunning)
+        {
+            OnStunStimuliReceived = true;
+        }
+    }
+
+    public void FixedUpdateQuickDeceleration()
+    {
+        var oppositeDirectionForceToApply = -RB.velocity * DecelerationValue * Time.fixedDeltaTime;
+        RB.AddForce(oppositeDirectionForceToApply, ForceMode.Acceleration);
     }
 
     public bool IsInContactWithFloor()
@@ -216,9 +282,62 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
         m_enemies = FindEnemies();
     }
 
-    public void ActivateAttackAnimation()
+    public void UpdateAnimatorBoolValue(string key, bool value)
     {
-        Animator.SetTrigger(KEY_STATUS_TRIGGER_ATTACK);
+        Animator.SetBool(key, value);
+    }
+
+    private void Set2dRelativeVelocity()
+    {
+        Vector3 relativeVelocity = RB.transform.InverseTransformDirection(RB.velocity);
+
+        CurrentRelativeVelocity = new Vector2(relativeVelocity.x, relativeVelocity.z);
+    }
+
+    public float GetCurrentMaxSpeed()
+    {
+
+        if (Mathf.Approximately(CurrentDirectionalInputs.magnitude, 0))
+        {
+            return MaxForwardVelocity;
+        }
+
+        var normalizedInputs = CurrentDirectionalInputs.normalized;
+
+        var currentMaxVelocity = Mathf.Pow(normalizedInputs.x, 2) * MaxSideVelocity;
+
+        if (normalizedInputs.y > 0)
+        {
+            currentMaxVelocity += Mathf.Pow(normalizedInputs.y, 2) * MaxForwardVelocity;
+        }
+        else
+        {
+            currentMaxVelocity += Mathf.Pow(normalizedInputs.y, 2) * MaxBackwardVelocity;
+        }
+
+        return currentMaxVelocity;
+    }
+
+    public void SetDirectionalInputs()
+    {
+        CurrentDirectionalInputs = Vector2.zero;
+
+        if (Input.GetKey(KeyCode.W))
+        {
+            CurrentDirectionalInputs += Vector2.up;
+        }
+        if (Input.GetKey(KeyCode.S))
+        {
+            CurrentDirectionalInputs += Vector2.down;
+        }
+        if (Input.GetKey(KeyCode.A))
+        {
+            CurrentDirectionalInputs += Vector2.left;
+        }
+        if (Input.GetKey(KeyCode.D))
+        {
+            CurrentDirectionalInputs += Vector2.right;
+        }
     }
 
     public void EnableTouchGround()
@@ -231,17 +350,24 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
         Animator.SetBool(KEY_STATUS_BOOL_TOUCHGROUND, false);
     }
 
-    public void UpdateAnimatorMovementValues(Vector2 movementValue)
+    public void EnableStun()
     {
-        //Aller chercher ma vitesse actuelle
-        //Communiquer directment avec mon Animator
-        Animator.SetFloat("MoveX", movementValue.x / MaxVelocity);
-        Animator.SetFloat("MoveY", movementValue.y / MaxVelocity);
+        Animator.SetBool(KEY_STATUS_BOOL_STUN, true);
     }
 
-    public void ActivateJumpTrigger()
+    public void DisableStun()
     {
-        Animator.SetTrigger(KEY_STATUS_TRIGGER_JUMP);
+        Animator.SetBool(KEY_STATUS_BOOL_STUN, false);
+    }
+
+    public void ActivateAttackTrigger()
+    {
+        Animator.SetTrigger(KEY_STATUS_TRIGGER_ATTACK);
+    }
+
+    public void ActivateFallOnGroundTrigger()
+    {
+        Animator.SetTrigger(KEY_STATUS_TRIGGER_FALLONGROUND);
     }
 
     public void ActivateInAirTrigger()
@@ -249,14 +375,24 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
         Animator.SetTrigger(KEY_STATUS_TRIGGER_INAIR);
     }
 
+    public void ActivateIsHitTrigger()
+    {
+        Animator.SetTrigger(KEY_STATUS_TRIGGER_ISHIT);
+    }
+
+    public void ActivateJumpTrigger()
+    {
+        Animator.SetTrigger(KEY_STATUS_TRIGGER_JUMP);
+    }
+
     public void ActivateVictoryTrigger()
     {
         Animator.SetTrigger(KEY_STATUS_TRIGGER_VICTORY);
     }
 
-    public void ActivateIsHitTrigger()
+    public void SetFloatFallHeight(float fallHeight)
     {
-        Animator.SetTrigger(KEY_STATUS_TRIGGER_ISHIT);
+        Animator.SetFloat(KEY_STATUS_FLOAT_FALL_HEIGHT, fallHeight);
     }
 
 }

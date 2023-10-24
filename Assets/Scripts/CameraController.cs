@@ -16,6 +16,11 @@ public class CameraController : MonoBehaviour
     private float m_maxDistance = 1.0f;
     [SerializeField]
     private float m_lerpSpeed = 0.05f;
+    [SerializeField]
+    private Vector2 m_zoomClampValues = new Vector2(2.0f, 15.0f);
+
+    private float m_desiredDistance = 10.0f;
+
 
     void Start()
     {
@@ -31,20 +36,29 @@ public class CameraController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        FixedUpdateCameraLerp();
         MoveCameraInFrontOfObstructionsFUpdate();
+    }
+
+    private void FixedUpdateCameraLerp()
+    {
+        var desiredPosition = m_objectToLookAt.position - (transform.forward * m_desiredDistance);
+        transform.position = Vector3.Lerp(transform.position, desiredPosition, m_lerpSpeed);
     }
 
     private void UpdateHorizontalMovements()
     {
+        float currentAngleX = Input.GetAxis("Mouse X") * m_rotationSpeed;
+        transform.RotateAround(m_objectToLookAt.position, m_objectToLookAt.up, currentAngleX);
         //character's last rotation value
-        Quaternion rotation = m_objectToLookAt.rotation;
+        ////Quaternion rotation = m_objectToLookAt.rotation;
 
         // rotate character
-        float currentAngleX = Input.GetAxis("Mouse X") * m_rotationSpeed;
-        m_objectToLookAt.transform.Rotate(0, currentAngleX, 0);
+        ////float currentAngleX = Input.GetAxis("Mouse X") * m_rotationSpeed;
+        ////m_objectToLookAt.transform.Rotate(0, currentAngleX, 0);
 
         // the camera should be always behind the character, and this method seems easy and works well
-        transform.RotateAround(m_objectToLookAt.position, transform.up, m_objectToLookAt.transform.rotation.y - rotation.y);
+        ////transform.RotateAround(m_objectToLookAt.position, transform.up, m_objectToLookAt.transform.rotation.y - rotation.y);
 
         // tried many ways but all failed
 
@@ -93,15 +107,15 @@ public class CameraController : MonoBehaviour
 
     private void UpdateCameraScroll()
     {
-        if (Input.mouseScrollDelta.y != 0)
+        /*if (Input.mouseScrollDelta.y != 0)
         {
             //TODO: Faire une verification selon la distance la plus proche ou la plus eloignee
             //Que je souhaite entre ma camera et mon objet
 
             //TODO: Lerp plutot que d'effectuer immediatement la translation de la camera
-            /**
-             * if camera is too near or too far from the character, or between min and max value, then scroll works
-             */
+            
+            // if camera is too near or too far from the character, or between min and max value, then scroll works
+            
             Vector3 targetPosition = m_objectToLookAt.position - (transform.forward * 10.0f);
             float distance = Utils.Distance(targetPosition, m_objectToLookAt.position);
             if(distance <= m_maxDistance && distance >= m_minDistance ||
@@ -112,7 +126,9 @@ public class CameraController : MonoBehaviour
                 //transform.Translate(Vector3.forward * Input.mouseScrollDelta.y, Space.Self);
                 transform.position = Vector3.Lerp(transform.position, targetPosition, m_lerpSpeed);
             }
-        }
+        }*/
+        m_desiredDistance += Input.mouseScrollDelta.y;
+        m_desiredDistance = Mathf.Clamp(m_desiredDistance, m_zoomClampValues.x, m_zoomClampValues.y);
     }
 
     private void MoveCameraInFrontOfObstructionsFUpdate()

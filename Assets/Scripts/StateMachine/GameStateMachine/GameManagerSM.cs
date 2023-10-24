@@ -2,17 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManagerSM : MonoBehaviour
+public class GameManagerSM : AbstractStateMachine<IState>
 {
-    // Start is called before the first frame update
-    void Start()
+
+    [SerializeField]
+    protected Camera m_gameplayCamera;
+
+    [SerializeField]
+    protected Camera m_cinematicCamera;
+
+    protected override void CreatePossibleStates()
     {
-        
+        m_possibleStates = new List<IState>();
+        m_possibleStates.Add(new GamePlayState(m_gameplayCamera));
+        m_possibleStates.Add(new CinematicState(m_cinematicCamera));
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
