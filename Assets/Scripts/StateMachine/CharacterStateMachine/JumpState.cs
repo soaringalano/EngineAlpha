@@ -2,6 +2,9 @@
 
 public class JumpState : CharacterState
 {
+
+    public const string KEY_STATUS_TRIGGER_JUMP = "Jump";
+
     private const float STATE_EXIT_TIMER = 0.2f;
     private float m_currentStateTimer = 0.0f;
 
@@ -21,7 +24,7 @@ public class JumpState : CharacterState
             m_clip.Play();
         }
         m_stateMachine.DisableTouchGround();
-        m_stateMachine.ActivateJumpTrigger();
+        ActivateJumpTrigger();
         //Effectuer le saut
         m_stateMachine.Jump();
         m_currentStateTimer = STATE_EXIT_TIMER;
@@ -54,4 +57,10 @@ public class JumpState : CharacterState
     {
         return m_currentStateTimer <= 0;
     }
+
+    public void ActivateJumpTrigger()
+    {
+        m_stateMachine.Animator.SetTrigger(KEY_STATUS_TRIGGER_JUMP);
+    }
+
 }

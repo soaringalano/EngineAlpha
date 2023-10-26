@@ -7,23 +7,7 @@ using UnityEngine.Rendering.Universal.Internal;
 
 public class CharacterControllerStateMachine : AbstractStateMachine<CharacterState>, IDamageable
 {
-    public const string KEY_STATUS_BOOL_STUN = "Stun";
-
     public const string KEY_STATUS_BOOL_TOUCHGROUND = "TouchGround";
-
-    public const string KEY_STATUS_TRIGGER_ATTACK = "CommAttack";
-
-    public const string KEY_STATUS_TRIGGER_FALLONGROUND = "FallOnGround";
-
-    public const string KEY_STATUS_TRIGGER_INAIR = "InAir";
-
-    public const string KEY_STATUS_TRIGGER_ISHIT = "IsHit";
-
-    public const string KEY_STATUS_TRIGGER_JUMP = "Jump";
-
-    public const string KEY_STATUS_TRIGGER_VICTORY = "Victory";
-
-    public const string KEY_STATUS_FLOAT_FALL_HEIGHT = "FallHeight";
 
     public const string KEY_STATUS_FLOAT_MOVEX = "MoveX";
 
@@ -31,7 +15,8 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
 
     public const float TO_RADIAN = Mathf.PI / 180;
 
-    public const float STUN_HEIGHT = 5.0f;
+    [SerializeField]
+    public float m_stunHeight = 10.0f;
 
     public Camera Camera { get; private set; }
 
@@ -39,7 +24,7 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
     public Rigidbody RB { get; private set; }
 
     [field: SerializeField]
-    private Animator Animator { get; set; }
+    public Animator Animator { get; set; }
 
     [field: SerializeField]
     public float AccelerationValue { get; private set; }
@@ -66,7 +51,7 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
     public float InAirAccelerationValue { get; private set; } = 0.2f;
 
     [field: SerializeField]
-    public float JumpIntensity { get; private set; } = 1000.0f;
+    public float JumpIntensity { get; private set; } = 500.0f;
 
     [field: SerializeField]
     public float CommAttackDamage { get; set; } = 10.0f;
@@ -81,7 +66,7 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
     private float m_life { get; set; }
 
     [field: SerializeField]
-    private float m_enemyDamage { get; set; }
+    private float m_myDamage { get; set; }
 
     private GameObject[] m_enemies;
     
@@ -185,9 +170,11 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
         SetFloatFallHeight(0);
     }
 
+    public const string KEY_STATUS_FLOAT_FALL_HEIGHT = "FallHeight";
+
     public bool IsFallingFromHigh()
     {
-        return Animator.GetFloat(KEY_STATUS_FLOAT_FALL_HEIGHT) > STUN_HEIGHT;
+        return Animator.GetFloat(KEY_STATUS_FLOAT_FALL_HEIGHT) > m_stunHeight;
     }
 
     public void OnCollisionEnter(Collision collision)
@@ -195,14 +182,8 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
         Debug.Log(collision.collider.name);
         if (collision.collider.name == "Arms")
         {
-            ActivateIsHitTrigger();
-        }
-        if (collision.collider.name == "WinCondition")
-        {
-            if (collision.collider == null || collision.collider.IsDestroyed())
-            {
-                ActivateVictoryTrigger();
-            }
+            IDamageable enemy = collision.collider.GetComponentInParent<EnemyController>();
+            enemy.ReceiveDamage(EDamageType.Count, m_myDamage);
         }
     }
 
@@ -211,16 +192,24 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
         RB.AddForce(Vector3.up * JumpIntensity, ForceMode.Acceleration);
     }
 
-    public void ReceiveDamage(EDamageType damageType)
+    public void ReceiveDamage(EDamageType damageType, float damage)
     {
 
         if (damageType == EDamageType.Normal)
         {
             OnHitStimuliReceived = true;
         }
-        if (damageType == EDamageType.Stunning)
+        else if (damageType == EDamageType.Stunning)
         {
             OnStunStimuliReceived = true;
+        }
+        else if (damageType == EDamageType.Count)
+        {
+            m_life -= damage;
+            OnHitStimuliReceived = true;
+        }
+        if(m_life <= 0)
+        {
         }
     }
 
@@ -348,46 +337,6 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
     public void DisableTouchGround()
     {
         Animator.SetBool(KEY_STATUS_BOOL_TOUCHGROUND, false);
-    }
-
-    public void EnableStun()
-    {
-        Animator.SetBool(KEY_STATUS_BOOL_STUN, true);
-    }
-
-    public void DisableStun()
-    {
-        Animator.SetBool(KEY_STATUS_BOOL_STUN, false);
-    }
-
-    public void ActivateAttackTrigger()
-    {
-        Animator.SetTrigger(KEY_STATUS_TRIGGER_ATTACK);
-    }
-
-    public void ActivateFallOnGroundTrigger()
-    {
-        Animator.SetTrigger(KEY_STATUS_TRIGGER_FALLONGROUND);
-    }
-
-    public void ActivateInAirTrigger()
-    {
-        Animator.SetTrigger(KEY_STATUS_TRIGGER_INAIR);
-    }
-
-    public void ActivateIsHitTrigger()
-    {
-        Animator.SetTrigger(KEY_STATUS_TRIGGER_ISHIT);
-    }
-
-    public void ActivateJumpTrigger()
-    {
-        Animator.SetTrigger(KEY_STATUS_TRIGGER_JUMP);
-    }
-
-    public void ActivateVictoryTrigger()
-    {
-        Animator.SetTrigger(KEY_STATUS_TRIGGER_VICTORY);
     }
 
     public void SetFloatFallHeight(float fallHeight)

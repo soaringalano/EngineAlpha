@@ -7,6 +7,10 @@ using TMPro;
 public class AttackState : CharacterState
 {
 
+    public const string KEY_STATUS_TRIGGER_ATTACK = "CommAttack";
+
+    public const string KEY_STATUS_TRIGGER_VICTORY = "Victory";
+
     private const float STATE_EXIT_TIMER = 1.0f;
 
     private float m_currentStateTimer = 0.0f;
@@ -52,7 +56,7 @@ public class AttackState : CharacterState
         {
             m_clip.Play();
         }
-        m_stateMachine.ActivateAttackTrigger();
+        ActivateAttackTrigger();
         m_currentStateTimer = STATE_EXIT_TIMER;
     }
 
@@ -70,6 +74,16 @@ public class AttackState : CharacterState
     public override void OnUpdate()
     {
         m_currentStateTimer -= Time.deltaTime;
+    }
+
+    public void ActivateAttackTrigger()
+    {
+        m_stateMachine.Animator.SetTrigger(KEY_STATUS_TRIGGER_ATTACK);
+    }
+
+    public void ActivateVictoryTrigger()
+    {
+        m_stateMachine.Animator.SetTrigger(KEY_STATUS_TRIGGER_VICTORY);
     }
 
 }

@@ -4,15 +4,19 @@ using UnityEngine;
 
 public class InAirState : CharacterState
 {
+
+    public const string KEY_STATUS_BOOL_INAIR = "InAir";
+
     public override void OnEnter()
     {
         Debug.Log("Enter state: InAirState\n");
-        m_stateMachine.ActivateInAirTrigger();
+        EnableInAir();
     }
 
     public override void OnExit()
     {
         Debug.Log("Exit state: InAirState\n");
+        DisableInAir();
     }
 
     public override void OnFixedUpdate()
@@ -42,6 +46,17 @@ public class InAirState : CharacterState
 
     public override bool CanExit()
     {
-        return true;
+        return m_stateMachine.IsInContactWithFloor();
     }
+
+    public void EnableInAir()
+    {
+        m_stateMachine.Animator.SetBool(KEY_STATUS_BOOL_INAIR, true);
+    }
+
+    public void DisableInAir()
+    {
+        m_stateMachine.Animator.SetBool(KEY_STATUS_BOOL_INAIR, false);
+    }
+
 }

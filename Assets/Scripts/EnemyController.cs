@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyController : MonoBehaviour
+public class EnemyController : MonoBehaviour, IDamageable
 {
 
     [field: SerializeField]
@@ -63,5 +63,18 @@ public class EnemyController : MonoBehaviour
     public void OnCollisionExit(Collision collision)
     {
         
+    }
+
+    public void ReceiveDamage(EDamageType damageType, float damage)
+    {
+        switch(damageType)
+        {
+            case EDamageType.Count:
+            {
+                    m_life -= m_commAttackDamage;
+                    break;
+            }
+            default: break;
+        }
     }
 }

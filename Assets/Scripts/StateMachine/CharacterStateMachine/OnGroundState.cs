@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class OnGroundState : CharacterState
 {
+
+    public const string KEY_STATUS_BOOL_STUN = "Stun";
+
+    public const string KEY_STATUS_TRIGGER_FALLONGROUND = "FallOnGround";
+
+
     private const float STUN_DURATION = 1.5f;
     private float m_currentStateDuration;
     private AudioSource m_clip;
@@ -19,8 +25,8 @@ public class OnGroundState : CharacterState
         {
             m_clip.Play();
         }
-        m_stateMachine.OnStunStimuliReceived = false;
-        m_stateMachine.EnableStun();
+        EnableStun();
+        ActivateFallOnGroundTrigger();
         m_currentStateDuration = STUN_DURATION;
 
         Debug.Log("Enter state: GroundState\n");
@@ -29,7 +35,8 @@ public class OnGroundState : CharacterState
     public override void OnExit()
     {
         Debug.Log("Exit state: GroundState\n");
-        m_stateMachine.DisableStun();
+        m_stateMachine.OnStunStimuliReceived = false;
+        DisableStun();
         m_stateMachine.EnableTouchGround();
         m_stateMachine.InAirResetFallHeight();
     }
@@ -53,4 +60,23 @@ public class OnGroundState : CharacterState
     {
         return m_currentStateDuration <= 0;
     }
+
+    public void EnableStun()
+    {
+        m_stateMachine.Animator.SetBool(KEY_STATUS_BOOL_STUN, true);
+        m_stateMachine.OnStunStimuliReceived = true;
+    }
+
+    public void DisableStun()
+    {
+        m_stateMachine.Animator.SetBool(KEY_STATUS_BOOL_STUN, false);
+        m_stateMachine.OnStunStimuliReceived = false;
+    }
+
+    public void ActivateFallOnGroundTrigger()
+    {
+        m_stateMachine.Animator.SetTrigger(KEY_STATUS_TRIGGER_FALLONGROUND);
+    }
+
+
 }

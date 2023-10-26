@@ -14,7 +14,7 @@ public class DamageSource : MonoBehaviour
             return;
         }
 
-        charController.ReceiveDamage(eDamageType);
+        //charController.ReceiveDamage(eDamageType);
         Debug.Log(other.name + " receives damage of type: " + eDamageType.ToString());
     }
 }

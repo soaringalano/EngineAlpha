@@ -11,7 +11,7 @@ public class CharacterCameraShaker : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.E))
         {
-            StartCoroutine(cameraShake.Shake(0.15f, 0.4f));
+            StartCoroutine(cameraShake.Shake(0.5f, 0.1f));
         }
     }
 }

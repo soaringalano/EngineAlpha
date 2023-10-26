@@ -5,6 +5,8 @@ using UnityEngine;
 public class HitState : CharacterState
 {
 
+    public const string KEY_STATUS_TRIGGER_ISHIT = "IsHit";
+
     private const float HIT_DURATION = 0.2f;
     private float m_currentStateDuration;
 
@@ -22,14 +24,14 @@ public class HitState : CharacterState
             m_clip.Play();
         }
         m_currentStateDuration = HIT_DURATION;
-        m_stateMachine.OnHitStimuliReceived = false;
-        m_stateMachine.ActivateIsHitTrigger();
+        ActivateIsHitTrigger();
         Debug.Log("Enter state: HitState\n");
     }
 
     public override void OnExit()
     {
         Debug.Log("Exit state: HitState\n");
+        m_stateMachine.OnHitStimuliReceived = false;
     }
 
     public override void OnFixedUpdate()
@@ -51,4 +53,10 @@ public class HitState : CharacterState
     {
         return m_currentStateDuration < 0;
     }
+
+    public void ActivateIsHitTrigger()
+    {
+        m_stateMachine.Animator.SetTrigger(KEY_STATUS_TRIGGER_ISHIT);
+    }
+
 }
