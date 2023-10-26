@@ -9,22 +9,21 @@ public class CharacterEffectController : MonoBehaviour
     public List<SpecialFX> m_specialFX;
 
     // Start is called before the first frame update
-    void Start()
+    void PlaySoundFX(EFXState state)
     {
-        
+
     }
 
-    // Update is called once per frame
-    void Update()
+    void PlayParticleFX(EFXState state)
     {
-        
+
     }
 
 }
 
 public enum EFXState
 {
-    EAttack, EWalk, EHit, EFall, EJump
+    EOpening, EAttack, EWalk, EHit, EFall, EJump, EVictory, EGameEnd
 }
 
 public struct SpecialFX
