@@ -1,6 +1,10 @@
-public abstract class CharacterState : IState
+﻿public abstract class CharacterState : IState
 {
     protected CharacterControllerStateMachine m_stateMachine;
+
+    protected EFXState m_efxState;
+
+    protected SpecialFX m_specialFX;
 
     public void OnStart(CharacterControllerStateMachine stateMachine)
     {
@@ -35,6 +39,16 @@ public abstract class CharacterState : IState
     public virtual bool CanExit()
     {
         throw new System.NotImplementedException();
+    }
+
+    public EFXState GetEFXState()
+    {
+        return m_efxState;
+    }
+
+    public void SetEFXState( EFXState state )
+    { 
+        m_efxState = state;
     }
 
 }

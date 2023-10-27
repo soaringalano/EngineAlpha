@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour, IDamageable
 {
+    private float m_timer = 0;
+
+    [SerializeField]
+    private float m_waitTime;
 
     [field: SerializeField]
     private float m_life { get; set; }
@@ -14,22 +18,52 @@ public class EnemyController : MonoBehaviour, IDamageable
     [field: SerializeField]
     private float m_commAttackDamage { get; set; }
 
+    [field: SerializeField]
+    private AudioClip m_audioClip { get; set; }
+
+    [field: SerializeField]
+    private ParticleSystem m_particleSystem { get; set; }
+
+    private bool m_audiaoPlayed = false;
+
+    private bool m_particlePlayed = false;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+    }
+
+    void Awake()
+    {
+        m_timer = m_waitTime;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if(m_timer <= 0)
+        {
+            gameObject.SetActive(false);
+            Destroy(gameObject);
+        }
     }
 
     void FixedUpdate()
     {
         float angle = m_angularVelocity * Time.fixedDeltaTime;
         transform.Rotate(0, angle, 0);
+
+        if (m_life <= 0 && !m_audiaoPlayed && !m_particlePlayed)
+        {
+            m_particleSystem.Play(true);
+            m_particlePlayed = true;
+            AudioSource.PlayClipAtPoint(m_audioClip, transform.position);
+            m_audiaoPlayed = true;
+        }
+        if (m_particlePlayed && m_audiaoPlayed)
+        {
+            m_timer -= Time.fixedDeltaTime;
+        }
     }
 
     public void OnCollisionEnter(Collision collision)
@@ -37,12 +71,9 @@ public class EnemyController : MonoBehaviour, IDamageable
         Debug.Log(collision.collider.name);
         if (collision.collider.gameObject.name == "MainCharacter")
         {
-            if(m_life <= 0)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            m_life -= m_commAttackDamage;
+            CharacterControllerStateMachine characterControllerSM =
+                collision.collider.GetComponentInParent<CharacterControllerStateMachine>();
+            characterControllerSM.ReceiveDamage(EDamageType.Normal, m_commAttackDamage);
             m_angularVelocity *= -1;
         }
     }
