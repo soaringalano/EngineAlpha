@@ -80,6 +80,9 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
 
     public List<AudioSource> m_audioSources;
 
+    [SerializeField]
+    public HitboxController HitboxController;
+
     protected override void Awake()
     {
         base.Awake();

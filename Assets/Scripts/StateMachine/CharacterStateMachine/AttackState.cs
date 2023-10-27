@@ -56,6 +56,7 @@ public class AttackState : CharacterState
         {
             m_clip.Play();
         }
+        m_stateMachine.HitboxController.ActivateHitbox();
         ActivateAttackTrigger();
         m_currentStateTimer = STATE_EXIT_TIMER;
     }
@@ -64,6 +65,7 @@ public class AttackState : CharacterState
     {
         //Debug.Log("Exiting state: AttackState\n");
         //m_stateMachine.DisableAttackAnimation();
+        m_stateMachine.HitboxController.DeactivateHitbox();
     }
 
     public override void OnFixedUpdate()

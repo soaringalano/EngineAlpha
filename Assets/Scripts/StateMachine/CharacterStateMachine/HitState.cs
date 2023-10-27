@@ -24,6 +24,7 @@ public class HitState : CharacterState
             m_clip.Play();
         }
         m_currentStateDuration = HIT_DURATION;
+        m_stateMachine.HitboxController.ActivateHitbox();
         ActivateIsHitTrigger();
         Debug.Log("Enter state: HitState\n");
     }
@@ -31,6 +32,7 @@ public class HitState : CharacterState
     public override void OnExit()
     {
         Debug.Log("Exit state: HitState\n");
+        m_stateMachine.HitboxController.DeactivateHitbox();
         m_stateMachine.OnHitStimuliReceived = false;
     }
 
