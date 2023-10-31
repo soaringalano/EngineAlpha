@@ -12,6 +12,7 @@ public class FreeState : CharacterState
     public FreeState(AudioSource clip)
     {
         m_clip = clip;
+        m_efxState = EFXState.EWalk;
     }
 
     public override void OnEnter()

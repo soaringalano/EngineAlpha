@@ -15,6 +15,7 @@ public class HitState : CharacterState
     public HitState(AudioSource clip)
     {
         m_clip = clip;
+        m_efxState = EFXState.EHit;
     }
 
     public override void OnEnter()
@@ -24,6 +25,8 @@ public class HitState : CharacterState
         {
             m_clip.Play();
         }
+        //m_stateMachine.EffectController.PlaySoundFX(GetEFXState(), m_stateMachine.transform.position, 1.0f);
+        m_stateMachine.EffectController.PlayParticleFX(GetEFXState(), m_stateMachine.transform.position);
         m_currentStateDuration = HIT_DURATION;
         m_stateMachine.HitboxController.ActivateHitbox();
         m_stateMachine.CameraShaker.ShakeCameraOnHit();

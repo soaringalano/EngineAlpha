@@ -26,7 +26,6 @@ public class CameraController : MonoBehaviour
 
     private void Awake()
     {
-        DontDestroyOnLoad(this);
     }
 
 

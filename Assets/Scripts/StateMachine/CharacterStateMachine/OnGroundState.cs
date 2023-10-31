@@ -17,6 +17,7 @@ public class OnGroundState : CharacterState
     public OnGroundState(AudioSource clip)
     {
         m_clip = clip;
+        m_efxState = EFXState.EFall;
     }
 
     public override void OnEnter()
@@ -26,6 +27,8 @@ public class OnGroundState : CharacterState
         {
             m_clip.Play();
         }
+        //m_stateMachine.EffectController.PlaySoundFX(GetEFXState(), m_stateMachine.transform.position, 1.0f);
+        m_stateMachine.EffectController.PlayParticleFX(GetEFXState(), m_stateMachine.transform.position);
         m_stateMachine.EnableTouchGround();
         EnableStun();
         m_currentStateDuration = STUN_DURATION;

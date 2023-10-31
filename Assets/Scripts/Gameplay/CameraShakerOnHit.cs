@@ -27,7 +27,6 @@ public class CameraShakerOnHit : MonoBehaviour
 
     void Awake()
     {
-        DontDestroyOnLoad(this);
         m_perlin = m_virtualCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
     }
 

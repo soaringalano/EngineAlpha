@@ -22,7 +22,6 @@ public class FloatingStairController : MonoBehaviour
 
     private void Awake()
     {
-        DontDestroyOnLoad(this);
     }
 
     // Start is called before the first frame update

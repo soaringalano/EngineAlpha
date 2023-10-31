@@ -14,7 +14,6 @@ public class TimelineController : MonoBehaviour
 
     private void Awake()
     {
-        DontDestroyOnLoad(this);
         director.played += DirectorPlayed;
         director.stopped += DirectorStopped;
     }

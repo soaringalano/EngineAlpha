@@ -60,7 +60,6 @@ public class CharacterAutoPlayer : MonoBehaviour
 
     void Awake()
     {
-        DontDestroyOnLoad(this);
         m_delayTimer = 0.0f;
         for(int i=0; i<m_keys.Count; i++)
         {

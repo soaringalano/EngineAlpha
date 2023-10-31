@@ -5,7 +5,6 @@ public class CharacterFloorTrigger : MonoBehaviour
 
     private void Awake()
     {
-        DontDestroyOnLoad(this);
     }
 
     public bool IsOnFloor { get; private set; }

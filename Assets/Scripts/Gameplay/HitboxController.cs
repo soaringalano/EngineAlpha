@@ -15,7 +15,6 @@ public class HitboxController : MonoBehaviour
 
     private void Awake()
     {
-        DontDestroyOnLoad(this);
         DeactivateHitbox();
         m_characterController = GetComponent<CharacterControllerStateMachine>();
     }

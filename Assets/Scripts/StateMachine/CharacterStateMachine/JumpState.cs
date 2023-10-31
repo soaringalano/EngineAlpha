@@ -13,6 +13,7 @@ public class JumpState : CharacterState
     public JumpState(AudioSource clip)
     {
         m_clip = clip;
+        m_efxState = EFXState.EJump;
     }
 
     public override void OnEnter()
@@ -23,6 +24,8 @@ public class JumpState : CharacterState
         {
             m_clip.Play();
         }
+        //m_stateMachine.EffectController.PlaySoundFX(GetEFXState(), m_stateMachine.transform.position, 1.0f);
+        m_stateMachine.EffectController.PlayParticleFX(GetEFXState(), m_stateMachine.transform.position);
         m_stateMachine.DisableTouchGround();
         ActivateJumpTrigger();
         //Effectuer le saut

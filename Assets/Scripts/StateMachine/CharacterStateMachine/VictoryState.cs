@@ -16,6 +16,7 @@ public class VictoryState : CharacterState
     public VictoryState(AudioSource clip)
     {
         this.m_clip = clip;
+        m_efxState = EFXState.EVictory;
     }
 
     public override void OnStart()
@@ -26,10 +27,12 @@ public class VictoryState : CharacterState
     public override void OnEnter()
     {
         Debug.Log("Entering Victory state");
-        if(m_clip != null)
+        if (m_clip != null)
         {
             m_clip.Play();
         }
+        //m_stateMachine.EffectController.PlaySoundFX(GetEFXState(), m_stateMachine.transform.position, 1.0f);
+        m_stateMachine.EffectController.PlayParticleFX(GetEFXState(), m_stateMachine.transform.position);
         m_stateMachine.Animator.SetTrigger(KEY_STATE_TRIGGER_VICTORY);
     }
 

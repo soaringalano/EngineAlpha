@@ -27,7 +27,6 @@ public class VirtualCameraController : MonoBehaviour
 
     void Awake()
     {
-        DontDestroyOnLoad(this);
     }
 
     // Update is called once per frame

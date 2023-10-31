@@ -12,41 +12,46 @@ using UnityEngine.SceneManagement;
 // starts in AudioSource.playOnAwake. The DontDestroy.cs script
 // is attached to BackgroundMusic.
 
-public class SwitchScene : MonoBehaviour
+public class SwitchSceneManager : MonoBehaviour
 {
 
     private void Awake()
     {
-        DontDestroyOnLoad(this);
     }
 
     private void OnGUI()
     {
-        int xCenter = (Screen.width / 2);
+        /*int xCenter = (Screen.width / 2);
         int yCenter = (Screen.height / 2);
         int width = 400;
         int height = 120;
 
         GUIStyle fontSize = new GUIStyle(GUI.skin.GetStyle("button"));
-        fontSize.fontSize = 32;
+        fontSize.fontSize = 32;*/
 
-        Scene scene = SceneManager.GetActiveScene();
-
-        if (scene.name == "Level1")
+        if(Input.GetKeyDown(KeyCode.M))
         {
-            // Show a button to allow scene2 to be switched to.
-            if (GUI.Button(new Rect(xCenter - width / 2, yCenter - height / 2, width, height), "Load second scene", fontSize))
+            Scene scene = SceneManager.GetActiveScene();
+
+
+            if (scene.name == "Level1")
             {
+                // Show a button to allow scene2 to be switched to.
+                Debug.Log("Now loading level 2");
+
                 SceneManager.LoadScene("Level2");
             }
-        }
-        else
-        {
-            // Show a button to allow scene1 to be returned to.
-            if (GUI.Button(new Rect(xCenter - width / 2, yCenter - height / 2, width, height), "Return to first scene", fontSize))
+            else if (scene.name == "Level2")
             {
-                SceneManager.LoadScene("Level1");
+                Debug.Log("Now loading level 3");
+                SceneManager.LoadScene("Level3");
             }
+            else
+            {
+                Debug.Log("No more new levels");
+            }
+
         }
+
     }
 }

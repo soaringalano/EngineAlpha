@@ -34,8 +34,6 @@ public class EnemyController : MonoBehaviour, IDamageable
 
     void Awake()
     {
-        DontDestroyOnLoad(this);
-
         m_timer = m_waitTime;
 
         m_characterController = GameObject.Find("MainCharacter").GetComponent<CharacterControllerStateMachine>();

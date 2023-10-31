@@ -19,6 +19,7 @@ public class AttackState : CharacterState
     public AttackState(AudioSource clip)
     {
         m_clip = clip;
+        m_efxState = EFXState.EAttack;
     }
 
     /**
@@ -55,6 +56,8 @@ public class AttackState : CharacterState
         {
             m_clip.Play();
         }
+        //m_stateMachine.EffectController.PlaySoundFX(GetEFXState(), m_stateMachine.transform.position, 1.0f);
+        m_stateMachine.EffectController.PlayParticleFX(GetEFXState(), m_stateMachine.transform.position);
         Time.timeScale = 0.6f;
         m_stateMachine.HitboxController.ActivateHitbox();
         m_stateMachine.CameraShaker.ShakeCameraOnHit();

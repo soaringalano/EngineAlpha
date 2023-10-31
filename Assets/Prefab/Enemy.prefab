@@ -152,13 +152,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_waitTime: 0.5
-  <m_life>k__BackingField: 80
+  <m_life>k__BackingField: 30
   <m_angularVelocity>k__BackingField: 60
   <m_commAttackDamage>k__BackingField: 10
   <m_audioClip>k__BackingField: {fileID: 8300000, guid: 26002929d54c64042b876b76bf4d0916,
     type: 3}
   <m_particleSystem>k__BackingField: {fileID: 3653847952497694072}
-  m_characterController: {fileID: 0}
 --- !u!1 &6241259105497855193
 GameObject:
   m_ObjectHideFlags: 0

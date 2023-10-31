@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManagerSM : AbstractStateMachine<GameState>
 {
@@ -37,6 +38,7 @@ public class GameManagerSM : AbstractStateMachine<GameState>
         m_possibleStates = new List<GameState>();
         m_possibleStates.Add(new GamePlayState());
         m_possibleStates.Add(new CinematicState());
+        m_possibleStates.Add(new SwitchSceneState());
     }
 
     public void EnableGameplayInput()
@@ -76,6 +78,29 @@ public class GameManagerSM : AbstractStateMachine<GameState>
         if (CameraController != null)
         {
             CameraController.AcceptInput = false;
+        }
+    }
+
+    public void SwitchScene()
+    {
+
+        Scene scene = SceneManager.GetActiveScene();
+
+        if (scene.name == "Level1")
+        {
+            // Show a button to allow scene2 to be switched to.
+            Debug.Log("Now loading level 2");
+
+            SceneManager.LoadScene("Level2");
+        }
+        else if (scene.name == "Level2")
+        {
+            Debug.Log("Now loading level 3");
+            SceneManager.LoadScene("Level3");
+        }
+        else
+        {
+            Debug.Log("No more new levels");
         }
     }
 

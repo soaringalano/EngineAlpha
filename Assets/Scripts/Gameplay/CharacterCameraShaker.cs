@@ -12,7 +12,6 @@ public class CharacterCameraShaker : MonoBehaviour
 
     private void Awake()
     {
-        DontDestroyOnLoad(this);
     }
 
     public void ShakeCamera()

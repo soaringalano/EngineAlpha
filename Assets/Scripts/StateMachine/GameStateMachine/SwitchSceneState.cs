@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SwitchSceneState : GameState
 {
@@ -21,7 +22,7 @@ public class SwitchSceneState : GameState
     public override void OnEnter()
     {
         Debug.Log("Game manager is entering switch scene state......");
-        m_stateMachine.EnableGameplayInput();
+        m_stateMachine.SwitchScene();
     }
 
     public override void OnExit()

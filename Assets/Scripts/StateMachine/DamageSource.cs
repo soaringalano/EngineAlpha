@@ -7,7 +7,6 @@ public class DamageSource : MonoBehaviour
 
     private void Awake()
     {
-        DontDestroyOnLoad(this);
     }
 
     private void OnTriggerEnter(Collider other)

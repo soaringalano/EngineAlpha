@@ -15,23 +15,29 @@ public class CharacterEffectController : MonoBehaviour
 
     private void Awake()
     {
-        DontDestroyOnLoad(this);
         foreach (SpecialFX sfx in SpecialFXs)
         {
             SpecialFXsMap.Add(sfx.state, sfx);
         }
     }
 
-    void PlaySoundFX(EFXState state, Vector3 position, float volume)
+    public void PlaySoundFX(EFXState state, Vector3 position, float volume)
     {
         SpecialFX sfx = SpecialFXsMap[state];
-        AudioSource.PlayClipAtPoint(sfx.audioClips[0], position, volume);
+        if(sfx.audioClips.Count > 0 )
+        {
+            AudioSource.PlayClipAtPoint(sfx.audioClips[0], position, volume);
+        }
     }
 
-    void PlayParticleFX(EFXState state, Vector3 position)
+    public void PlayParticleFX(EFXState state, Vector3 position)
     {
         SpecialFX pfx = SpecialFXsMap[state];
-        pfx.particleSystems[0].Play();
+        if(pfx.particleSystems.Count > 0)
+        {
+            pfx.particleSystems[0].Play();
+
+        }
     }
 
 }
