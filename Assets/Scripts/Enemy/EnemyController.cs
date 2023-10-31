@@ -31,14 +31,11 @@ public class EnemyController : MonoBehaviour, IDamageable
     //[SerializeField]
     private CharacterControllerStateMachine m_characterController;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        m_timer = m_waitTime;
-    }
 
     void Awake()
     {
+        DontDestroyOnLoad(this);
+
         m_timer = m_waitTime;
 
         m_characterController = GameObject.Find("MainCharacter").GetComponent<CharacterControllerStateMachine>();
@@ -47,11 +44,11 @@ public class EnemyController : MonoBehaviour, IDamageable
     // Update is called once per frame
     void Update()
     {
-        if(m_timer <= 0)
+        /*if(m_timer <= 0)
         {
             gameObject.SetActive(false);
             Destroy(gameObject);
-        }
+        }*/
     }
 
     void FixedUpdate()
@@ -72,6 +69,8 @@ public class EnemyController : MonoBehaviour, IDamageable
         }
         if(m_timer <= 0)
         {
+            gameObject.SetActive(false);
+            Destroy(gameObject);
             m_characterController.SetEnemyDefeated(true);
         }
     }

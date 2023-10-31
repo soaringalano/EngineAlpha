@@ -53,6 +53,10 @@ public class GameManagerSM : AbstractStateMachine<GameState>
         {
             VirtualCameraController.AcceptInput = true;
         }
+        if (CameraController != null)
+        {
+            CameraController.AcceptInput = true;
+        }
     }
 
     public void DisableGameplayInput()
@@ -69,7 +73,10 @@ public class GameManagerSM : AbstractStateMachine<GameState>
         {
             VirtualCameraController.AcceptInput = false;
         }
-        TimelineController.StartTimeline();
+        if (CameraController != null)
+        {
+            CameraController.AcceptInput = false;
+        }
     }
 
 }

@@ -9,6 +9,7 @@ public class AbstractStateMachine<T> : MonoBehaviour where T : IState
 
     protected virtual void Awake()
     {
+        DontDestroyOnLoad(this);
         CreatePossibleStates();
     }
 

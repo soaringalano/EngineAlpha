@@ -1,9 +1,14 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class DamageSource : MonoBehaviour
 {
     [SerializeField]
     private EDamageType eDamageType = EDamageType.Count;
+
+    private void Awake()
+    {
+        DontDestroyOnLoad(this);
+    }
 
     private void OnTriggerEnter(Collider other)
     {

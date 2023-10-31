@@ -24,9 +24,11 @@ public class CameraController : MonoBehaviour
     public bool AcceptInput = true;
 
 
-    void Start()
+    private void Awake()
     {
+        DontDestroyOnLoad(this);
     }
+
 
     // Update is called once per frame
     void Update()

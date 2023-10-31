@@ -5,7 +5,11 @@ using UnityEngine;
 // this class is to slow down the action of character while attacking.
 public class HitboxPunchTrigger : MonoBehaviour
 {
-    
+    private void Awake()
+    {
+        DontDestroyOnLoad(this);
+    }
+
     public void OnTriggerEnter(Collider other)
     {
 

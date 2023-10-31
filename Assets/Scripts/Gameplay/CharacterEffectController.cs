@@ -15,6 +15,7 @@ public class CharacterEffectController : MonoBehaviour
 
     private void Awake()
     {
+        DontDestroyOnLoad(this);
         foreach (SpecialFX sfx in SpecialFXs)
         {
             SpecialFXsMap.Add(sfx.state, sfx);

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Playables;
 
@@ -8,11 +9,12 @@ public class TimelineController : MonoBehaviour
     [SerializeField]
     public PlayableDirector director;
 
+
     private bool finishedPlaying = false;
 
     private void Awake()
     {
-        //director = GetComponent<PlayableDirector>();
+        DontDestroyOnLoad(this);
         director.played += DirectorPlayed;
         director.stopped += DirectorStopped;
     }

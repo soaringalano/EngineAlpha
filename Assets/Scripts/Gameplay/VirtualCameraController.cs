@@ -25,8 +25,9 @@ public class VirtualCameraController : MonoBehaviour
     public bool AcceptInput = true;
 
 
-    void Start()
+    void Awake()
     {
+        DontDestroyOnLoad(this);
     }
 
     // Update is called once per frame
