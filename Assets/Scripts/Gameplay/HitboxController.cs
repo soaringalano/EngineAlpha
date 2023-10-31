@@ -1,16 +1,22 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// this class is to deactivate or activate according to the state
 public class HitboxController : MonoBehaviour
 {
 
+    private CharacterControllerStateMachine m_characterController;
+
+    //Left hand : stun, right hand : hit
+    //a stun punch will activate special effect
     [field:SerializeField]
     public List<GameObject> m_hitboxes {  get; set; }
 
     private void Awake()
     {
         DeactivateHitbox();
+        m_characterController = GetComponent<CharacterControllerStateMachine>();
     }
 
     public void ActivateHitbox()
@@ -40,4 +46,5 @@ public class HitboxController : MonoBehaviour
             }
         }
     }
+
 }

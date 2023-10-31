@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,23 +21,22 @@ public class OnGroundState : CharacterState
 
     public override void OnEnter()
     {
+        Debug.Log("Entering OnGround state");
         if (m_clip != null)
         {
             m_clip.Play();
         }
+        m_stateMachine.EnableTouchGround();
         EnableStun();
-        ActivateFallOnGroundTrigger();
         m_currentStateDuration = STUN_DURATION;
 
-        Debug.Log("Enter state: GroundState\n");
     }
 
     public override void OnExit()
     {
-        Debug.Log("Exit state: GroundState\n");
+        Debug.Log("Exiting OnGround state");
         m_stateMachine.OnStunStimuliReceived = false;
         DisableStun();
-        m_stateMachine.EnableTouchGround();
         m_stateMachine.InAirResetFallHeight();
     }
 
@@ -53,7 +52,8 @@ public class OnGroundState : CharacterState
 
     public override bool CanEnter(IState currentState)
     {
-        return m_stateMachine.OnStunStimuliReceived || m_stateMachine.IsFallingFromHigh();
+        return m_stateMachine.OnStunStimuliReceived ||
+               m_stateMachine.IsInContactWithFloor() &&  m_stateMachine.IsFallingFromHigh();
     }
 
     public override bool CanExit()
@@ -72,11 +72,5 @@ public class OnGroundState : CharacterState
         m_stateMachine.Animator.SetBool(KEY_STATUS_BOOL_STUN, false);
         m_stateMachine.OnStunStimuliReceived = false;
     }
-
-    public void ActivateFallOnGroundTrigger()
-    {
-        m_stateMachine.Animator.SetTrigger(KEY_STATUS_TRIGGER_FALLONGROUND);
-    }
-
 
 }

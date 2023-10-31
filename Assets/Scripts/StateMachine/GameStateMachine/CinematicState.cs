@@ -1,46 +1,43 @@
+﻿using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CinematicState : IState
+public class CinematicState : GameState
 {
 
-    protected Camera m_camera;
 
-    public CinematicState(Camera camera)
-    {
-        m_camera = camera;
-    }
-
-    public bool CanEnter(IState currentState)
+    public override bool CanEnter(IState currentState)
     {
         return Input.GetKeyDown(KeyCode.C);
     }
 
-    public bool CanExit()
+    public override bool CanExit()
     {
-        return Input.GetKeyUp(KeyCode.C);
+        return !m_stateMachine.TimelineController.IsPlaying() || Input.GetKeyDown(KeyCode.G);
     }
 
-    public void OnEnter()
+    public override void OnEnter()
     {
-        m_camera.enabled = true;
+        Debug.Log("Game manager is entering Cinematic state......");
+        m_stateMachine.DisableGameplayInput();
+        m_stateMachine.TimelineController.StartTimeline();
     }
 
-    public void OnExit()
+    public override void OnExit()
     {
-        m_camera.enabled = false;
+        Debug.Log("Game manager is exiting Cinematic state......");
     }
 
-    public void OnFixedUpdate()
-    {
-    }
-
-    public void OnStart()
+    public override void OnFixedUpdate()
     {
     }
 
-    public void OnUpdate()
+    public override void OnStart()
+    {
+    }
+
+    public override void OnUpdate()
     {
     }
 }

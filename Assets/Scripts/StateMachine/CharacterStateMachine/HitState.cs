@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,7 +7,7 @@ public class HitState : CharacterState
 
     public const string KEY_STATUS_TRIGGER_ISHIT = "IsHit";
 
-    private const float HIT_DURATION = 0.2f;
+    private const float HIT_DURATION = 0.5f;
     private float m_currentStateDuration;
 
     private AudioSource m_clip;
@@ -19,19 +19,20 @@ public class HitState : CharacterState
 
     public override void OnEnter()
     {
-        if(m_clip != null)
+        Debug.Log("Entering Hit state");
+        if (m_clip != null)
         {
             m_clip.Play();
         }
         m_currentStateDuration = HIT_DURATION;
         m_stateMachine.HitboxController.ActivateHitbox();
+        m_stateMachine.CameraShaker.ShakeCameraOnHit();
         ActivateIsHitTrigger();
-        Debug.Log("Enter state: HitState\n");
     }
 
     public override void OnExit()
     {
-        Debug.Log("Exit state: HitState\n");
+        Debug.Log("Exiting Hit State");
         m_stateMachine.HitboxController.DeactivateHitbox();
         m_stateMachine.OnHitStimuliReceived = false;
     }

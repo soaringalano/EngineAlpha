@@ -1,22 +1,49 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.UIElements;
 
 public class CharacterEffectController : MonoBehaviour
 {
 
     [SerializeField]
-    public List<SpecialFX> m_specialFX = new List<SpecialFX>();
+    public List<SpecialFX> SpecialFXs = new List<SpecialFX>();
 
-    // Start is called before the first frame update
-    void PlaySoundFX(EFXState state)
+    [SerializeField]
+    private Dictionary<EFXState, SpecialFX> SpecialFXsMap = new Dictionary<EFXState, SpecialFX>();
+
+    private void Awake()
     {
-        
+        foreach (SpecialFX sfx in SpecialFXs)
+        {
+            SpecialFXsMap.Add(sfx.state, sfx);
+        }
     }
 
-    void PlayParticleFX(EFXState state)
+    void PlaySoundFX(EFXState state, Vector3 position, float volume)
     {
-
+        SpecialFX sfx = SpecialFXsMap[state];
+        AudioSource.PlayClipAtPoint(sfx.audioClips[0], position, volume);
     }
 
+    void PlayParticleFX(EFXState state, Vector3 position)
+    {
+        SpecialFX pfx = SpecialFXsMap[state];
+        pfx.particleSystems[0].Play();
+    }
+
+}
+
+public enum EFXState
+{
+    EOpening, EAttack, EWalk, EHit, EFall, EJump, EVictory, EGameEnd, ECutScene
+}
+
+[System.Serializable]
+public struct SpecialFX
+{
+    public EFXState state;
+    public List<AudioClip> audioClips;
+    public List<ParticleSystem> particleSystems;
 }

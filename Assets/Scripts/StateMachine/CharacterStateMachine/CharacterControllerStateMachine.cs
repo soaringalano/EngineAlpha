@@ -18,6 +18,8 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
     [SerializeField]
     public float m_stunHeight = 10.0f;
 
+    public bool AcceptInput = true;
+
     public Camera Camera { get; private set; }
 
     [field: SerializeField]
@@ -48,6 +50,7 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
     [field: SerializeField]
     public float MaxSideVelocity { get; private set; }
 
+    [field: SerializeField]
     public float InAirAccelerationValue { get; private set; } = 0.2f;
 
     [field: SerializeField]
@@ -65,6 +68,8 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
     [field: SerializeField]
     private float m_life { get; set; }
 
+    private float m_newLife;
+
     [field: SerializeField]
     private float m_myDamage { get; set; }
 
@@ -74,19 +79,30 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
     
     public bool OnStunStimuliReceived { get; set; } = false;
 
+    private bool EnemyDefeated = false;
+
     private Vector2 m_highestPosition = Vector2.zero;
 
     private Vector2 m_lowestPosition = Vector2.positiveInfinity;
 
+    [SerializeField]
     public List<AudioSource> m_audioSources;
 
     [SerializeField]
     public HitboxController HitboxController;
 
+    [SerializeField]
+    public CameraShakerOnHit CameraShaker;
+
+    [SerializeField]
+    public CharacterEffectController EffectController;
+
     protected override void Awake()
     {
         base.Awake();
+        EnemyDefeated = false;
         m_enemies = FindEnemies();
+        m_newLife = m_life;
     }
 
     protected override void CreatePossibleStates()
@@ -98,6 +114,7 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
         m_possibleStates.Add(new OnGroundState(m_audioSources[2]));
         m_possibleStates.Add(new AttackState(m_audioSources[3]));
         m_possibleStates.Add(new HitState(m_audioSources[4]));
+        m_possibleStates.Add(new VictoryState(m_audioSources[5]));
     }
 
     // Start is called before the first frame update
@@ -129,6 +146,7 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
     public void UpdateAnimatorKeyValues()
     {
         UpdateAnimatorBoolValue(KEY_STATUS_BOOL_TOUCHGROUND, m_floorTrigger.IsOnFloor);
+        //Debug.Log("current velocity:" + CurrentRelativeVelocity / GetCurrentMaxSpeed());
         Animator.SetFloat("MoveX", CurrentRelativeVelocity.x / GetCurrentMaxSpeed());
         Animator.SetFloat("MoveY", CurrentRelativeVelocity.y / GetCurrentMaxSpeed());
         UpdateEnemies();
@@ -182,7 +200,7 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
 
     public void OnCollisionEnter(Collision collision)
     {
-        Debug.Log(collision.collider.name);
+        //Debug.Log(collision.collider.name);
         if (collision.collider.name == "Arms")
         {
             IDamageable enemy = collision.collider.GetComponentInParent<EnemyController>();
@@ -200,19 +218,24 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
 
         if (damageType == EDamageType.Normal)
         {
-            OnHitStimuliReceived = true;
+            m_life -= damage;
         }
         else if (damageType == EDamageType.Stunning)
         {
-            OnStunStimuliReceived = true;
+            m_life -= 2 * damage;
         }
         else if (damageType == EDamageType.Count)
         {
             m_life -= damage;
-            OnHitStimuliReceived = true;
         }
-        if(m_life <= 0)
+        if (m_life <= 0)
         {
+            OnStunStimuliReceived = true;
+            m_life = m_newLife;
+        }
+        else
+        {
+            OnHitStimuliReceived = true;
         }
     }
 
@@ -312,6 +335,12 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
 
     public void SetDirectionalInputs()
     {
+
+        if(!AcceptInput)
+        {
+            return;
+        }
+
         CurrentDirectionalInputs = Vector2.zero;
 
         if (Input.GetKey(KeyCode.W))
@@ -330,6 +359,7 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
         {
             CurrentDirectionalInputs += Vector2.right;
         }
+        //Debug.Log("CurrentDirectionalInputs : " + CurrentDirectionalInputs);
     }
 
     public void EnableTouchGround()
@@ -345,6 +375,16 @@ public class CharacterControllerStateMachine : AbstractStateMachine<CharacterSta
     public void SetFloatFallHeight(float fallHeight)
     {
         Animator.SetFloat(KEY_STATUS_FLOAT_FALL_HEIGHT, fallHeight);
+    }
+
+    public void SetEnemyDefeated(bool  defeated)
+    {
+        EnemyDefeated = defeated;
+    }
+
+    public bool IsEnemyDefeated()
+    {
+        return EnemyDefeated;
     }
 
 }

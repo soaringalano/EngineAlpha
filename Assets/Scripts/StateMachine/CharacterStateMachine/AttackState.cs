@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using TMPro;
+using System.Threading;
 
 public class AttackState : CharacterState
 {
 
     public const string KEY_STATUS_TRIGGER_ATTACK = "CommAttack";
-
-    public const string KEY_STATUS_TRIGGER_VICTORY = "Victory";
 
     private const float STATE_EXIT_TIMER = 1.0f;
 
@@ -51,20 +50,23 @@ public class AttackState : CharacterState
 
     public override void OnEnter()
     {
-        //Debug.Log("Enter state: AttackState\n");
+        Debug.Log("Enter state: AttackState\n");
         if (m_clip != null)
         {
             m_clip.Play();
         }
+        Time.timeScale = 0.6f;
         m_stateMachine.HitboxController.ActivateHitbox();
+        m_stateMachine.CameraShaker.ShakeCameraOnHit();
         ActivateAttackTrigger();
         m_currentStateTimer = STATE_EXIT_TIMER;
     }
 
     public override void OnExit()
     {
-        //Debug.Log("Exiting state: AttackState\n");
+        Debug.Log("Exiting state: AttackState\n");
         //m_stateMachine.DisableAttackAnimation();
+        Time.timeScale = 1.0f;
         m_stateMachine.HitboxController.DeactivateHitbox();
     }
 
@@ -81,11 +83,6 @@ public class AttackState : CharacterState
     public void ActivateAttackTrigger()
     {
         m_stateMachine.Animator.SetTrigger(KEY_STATUS_TRIGGER_ATTACK);
-    }
-
-    public void ActivateVictoryTrigger()
-    {
-        m_stateMachine.Animator.SetTrigger(KEY_STATUS_TRIGGER_VICTORY);
     }
 
 }

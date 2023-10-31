@@ -17,7 +17,7 @@ public class JumpState : CharacterState
 
     public override void OnEnter()
     {
-        //Debug.Log("Enter state: JumpState\n");
+        Debug.Log("Enter state: JumpState\n");
 
         if (m_clip != null)
         {
@@ -32,7 +32,7 @@ public class JumpState : CharacterState
 
     public override void OnExit()
     {
-        //Debug.Log("Exit state: JumpState\n");
+        Debug.Log("Exit state: JumpState\n");
         //m_stateMachine.DeactivateJumpTrigger();
         //m_stateMachine.EnableTouchGround();
     }

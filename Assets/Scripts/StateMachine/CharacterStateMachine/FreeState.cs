@@ -7,9 +7,27 @@ public class FreeState : CharacterState
 
     private AudioSource m_clip;
 
+    private float m_stepTimer = 0.0f;
+
     public FreeState(AudioSource clip)
     {
         m_clip = clip;
+    }
+
+    public override void OnEnter()
+    {
+        Debug.Log("Entering free state");
+        base.OnEnter();
+    }
+
+    public override void OnExit()
+    {
+        Debug.Log("Exiting free state");
+        base.OnExit();
+        if (m_clip != null)
+        {
+            m_clip.Stop();
+        }
     }
 
     public override void OnUpdate()
@@ -68,18 +86,22 @@ public class FreeState : CharacterState
             return;
         }
         Vector2 velocity = m_stateMachine.CurrentDirectionalInputs;
-        float speed = velocity.magnitude;
+        //float speed = velocity.magnitude;
         ApplyMovementsOnFloorFU(velocity);
+
+        // the higher the speed is, the faster the step sounds
+        float speed = m_stateMachine.GetCurrentMaxSpeed();
         if (m_clip != null)
         {
-            if(speed > 0)
+            if (speed > 0 && !m_clip.isPlaying)
             {
-                m_clip.Play();
+                if(m_stepTimer >= 1/speed)
+                {
+                    m_clip.Play();
+                    m_stepTimer = 0;
+                }
             }
-            else
-            {
-                m_clip.Stop();
-            }
+            m_stepTimer += Time.fixedDeltaTime;
         }
     }
 

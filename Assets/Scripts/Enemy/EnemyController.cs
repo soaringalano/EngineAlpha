@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour, IDamageable
 {
-    private float m_timer = 0;
+    private float m_timer;
 
     [SerializeField]
     private float m_waitTime;
@@ -28,14 +28,20 @@ public class EnemyController : MonoBehaviour, IDamageable
 
     private bool m_particlePlayed = false;
 
+    //[SerializeField]
+    private CharacterControllerStateMachine m_characterController;
+
     // Start is called before the first frame update
     void Start()
     {
+        m_timer = m_waitTime;
     }
 
     void Awake()
     {
         m_timer = m_waitTime;
+
+        m_characterController = GameObject.Find("MainCharacter").GetComponent<CharacterControllerStateMachine>();
     }
 
     // Update is called once per frame
@@ -64,12 +70,18 @@ public class EnemyController : MonoBehaviour, IDamageable
         {
             m_timer -= Time.fixedDeltaTime;
         }
+        if(m_timer <= 0)
+        {
+            m_characterController.SetEnemyDefeated(true);
+        }
     }
 
     public void OnCollisionEnter(Collision collision)
     {
         Debug.Log(collision.collider.name);
-        if (collision.collider.gameObject.name == "MainCharacter")
+        if (collision.collider.gameObject.name == "HitboxLeft" ||
+            collision.collider.gameObject.name == "HitboxRight" ||
+            collision.collider.gameObject.name == "MainCharacter")
         {
             CharacterControllerStateMachine characterControllerSM =
                 collision.collider.GetComponentInParent<CharacterControllerStateMachine>();

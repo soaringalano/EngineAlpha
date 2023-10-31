@@ -12,14 +12,16 @@ public class CameraController : MonoBehaviour
     private Vector2 m_clampingXRotationValues = Vector2.zero;
     [SerializeField]
     private float m_minDistance = 1.0f;
-    [SerializeField]
-    private float m_maxDistance = 1.0f;
+    //[SerializeField]
+    //private float m_maxDistance = 1.0f;
     [SerializeField]
     private float m_lerpSpeed = 0.05f;
     [SerializeField]
     private Vector2 m_zoomClampValues = new Vector2(2.0f, 15.0f);
 
     private float m_desiredDistance = 10.0f;
+
+    public bool AcceptInput = true;
 
 
     void Start()
@@ -29,6 +31,10 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!AcceptInput)
+        {
+            return;
+        }
         UpdateHorizontalMovements();
         UpdateVerticalMovements();
         UpdateCameraScroll();
@@ -57,32 +63,6 @@ public class CameraController : MonoBehaviour
         ////float currentAngleX = Input.GetAxis("Mouse X") * m_rotationSpeed;
         ////m_objectToLookAt.transform.Rotate(0, currentAngleX, 0);
 
-        // the camera should be always behind the character, and this method seems easy and works well
-        ////transform.RotateAround(m_objectToLookAt.position, transform.up, m_objectToLookAt.transform.rotation.y - rotation.y);
-
-        // tried many ways but all failed
-
-        //rotation = Quaternion.RotateTowards(transform.rotation, m_objectToLookAt.transform.rotation, m_rotationSpeed);
-        //rotation.x = transform.rotation.x;
-        //rotation.z = transform.rotation.z;
-        //rotation.w = transform.rotation.w;
-        //transform.SetPositionAndRotation(transform.position, rotation);
-
-        // calculate new position of camera
-        //float distance = Vector3.Distance(transform.position, m_objectToLookAt.position);
-        //Vector3 a = (m_objectToLookAt.transform.rotation.eulerAngles - m_lastFrameTargetRoation);
-
-        //Vector3 newpos = a.normalized * distance;
-        //transform.position = newpos;
-        //transform.LookAt(m_objectToLookAt.transform.position);
-
-        //transform.position = Vector3.Slerp(transform.position, newpos, m_rotationSpeed * Time.deltaTime);
-        //transform.LookAt(m_objectToLookAt.position);
-        
-        //transform.RotateAround(m_objectToLookAt.position, m_objectToLookAt.up, currentAngleX);
-        //transform.RotateAround(m_objectToLookAt.position, Vector3.up, m_objectToLookAt.transform.eulerAngles.y - m_lastFrameTargetRoation.y);
-
-        //m_lastFrameTargetRoation = m_objectToLookAt.transform.rotation.eulerAngles;
     }
 
     /**
